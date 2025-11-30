@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Grade Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .honor-roll { background-color: #d4edda; }
+        .at-risk { background-color: #f8d7da; }
+        .improving { border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">🎓 Student Grade Tracker</h1>
+
+    <!-- Navigation -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/}">All Students</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/improving}">Improving Students</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/honor-roll}">Honor Roll</a>
+        </li>
+    </ul>
+
+    <!-- Statistics Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Class Statistics</h5>
+                    <p class="card-text">
+                        Total Students: <span th:text="${totalStudents}"></span> |
+                        Average GPA: <span th:text="${classAverage}"></span> |
+                        Honor Roll: <span th:text="${honorRollCount}"></span> |
+                        At Risk: <span th:text="${atRiskCount}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Student List</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Student ID</th>
+                    <th>Major</th>
+                    <th>GPA</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- FIXED: Use single th:class with conditional string concatenation -->
+                <tr th:each="student : ${students}"
+                    th:class="'table-row ' +
+                                     (${student.honorRoll} ? 'honor-roll ' : '') +
+                                     (${student.atRisk} ? 'at-risk ' : '') +
+                                     (${student.improving} ? 'improving' : '')">
+                    <td th:text="${student.name}"></td>
+                    <td th:text="${student.studentId}"></td>
+                    <td th:text="${student.major}"></td>
+                    <td>
+                        <span th:text="${#numbers.formatDecimal(student.gpa, 1, 2)}"></span>
+                        <span th:if="${student.honorRoll}" class="badge bg-success ms-1">Honor Roll</span>
+                        <span th:if="${student.atRisk}" class="badge bg-danger ms-1">At Risk</span>
+                    </td>
+                    <td>
+                        <span th:if="${student.improving}" class="badge bg-success">↑ Improving</span>
+                        <span th:if="${!student.improving}" class="badge bg-secondary">Stable</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/students/{id}(id=${student.id})}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Student Form -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Add New Student</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/students}" method="post">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="name" placeholder="Student Name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="studentId" placeholder="Student ID" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="major" placeholder="Major" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">Add Student</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
